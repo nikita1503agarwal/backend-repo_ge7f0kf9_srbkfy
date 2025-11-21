@@ -12,37 +12,66 @@ Model name is converted to lowercase for the collection name:
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 
-# Example schemas (replace with your own):
+# Jazz Mastery app schemas
 
+class Chord(BaseModel):
+    """
+    Chords collection schema
+    Collection name: "chord"
+    """
+    name: str = Field(..., description="Human-readable name, e.g., C Major 7")
+    symbol: str = Field(..., description="Symbol, e.g., Cmaj7, Fm9, G7b9")
+    root: str = Field(..., description="Root note, e.g., C, F#, Bb")
+    quality: str = Field(..., description="Quality, e.g., major7, minor7, dominant7, diminished, altered")
+    notes: List[str] = Field(..., description="List of pitch classes in ascending order, e.g., ['C','E','G','B']")
+    extensions: Optional[List[str]] = Field(default=None, description="Optional extensions, e.g., ['9','#11','13']")
+    voicings: Optional[List[List[str]]] = Field(default=None, description="Common piano voicings, each a list of notes, low-to-high")
+    tags: Optional[List[str]] = Field(default=None, description="Tags like 'shell', 'quartal', 'left-hand', 'rootless'")
+
+class Progression(BaseModel):
+    """
+    Progressions collection schema
+    Collection name: "progression"
+    """
+    name: str = Field(..., description="Name of progression, e.g., 2-5-1 in C")
+    key: str = Field(..., description="Key center, e.g., C, F#, Bb")
+    roman_numerals: List[str] = Field(..., description="Roman numerals, e.g., ['ii','V','I']")
+    chords: List[str] = Field(..., description="Chord symbols in order, e.g., ['Dm7','G7','Cmaj7']")
+    style: Optional[str] = Field(default=None, description="Style or context, e.g., bebop, modal, blues")
+
+class Lesson(BaseModel):
+    """
+    Lessons collection schema
+    Collection name: "lesson"
+    """
+    title: str
+    level: str = Field(..., description="beginner | intermediate | advanced")
+    content: str = Field(..., description="Markdown content for the lesson body")
+    tags: Optional[List[str]] = Field(default=None)
+
+class Favorite(BaseModel):
+    """
+    Favorites collection schema
+    Collection name: "favorite"
+    """
+    client_id: str = Field(..., description="Anonymous client identifier from frontend")
+    kind: str = Field(..., description="'chord' or 'progression'")
+    ref: str = Field(..., description="Referenced symbol or name (for simplicity)")
+    note: Optional[str] = Field(default=None, description="Optional note or label")
+
+# Example schemas (kept for reference)
 class User(BaseModel):
-    """
-    Users collection schema
-    Collection name: "user" (lowercase of class name)
-    """
-    name: str = Field(..., description="Full name")
-    email: str = Field(..., description="Email address")
-    address: str = Field(..., description="Address")
-    age: Optional[int] = Field(None, ge=0, le=120, description="Age in years")
-    is_active: bool = Field(True, description="Whether user is active")
+    name: str
+    email: str
+    address: str
+    age: Optional[int] = None
+    is_active: bool = True
 
 class Product(BaseModel):
-    """
-    Products collection schema
-    Collection name: "product" (lowercase of class name)
-    """
-    title: str = Field(..., description="Product title")
-    description: Optional[str] = Field(None, description="Product description")
-    price: float = Field(..., ge=0, description="Price in dollars")
-    category: str = Field(..., description="Product category")
-    in_stock: bool = Field(True, description="Whether product is in stock")
-
-# Add your own schemas here:
-# --------------------------------------------------
-
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+    title: str
+    description: Optional[str] = None
+    price: float
+    category: str
+    in_stock: bool = True
